@@ -55,64 +55,10 @@ const revealObs = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
 // ═══════════════════════════════════════════
-//  AI CHATBOT
+//  AI CHATBOT — Powered by Groq via Vercel
 // ═══════════════════════════════════════════
 
-const PRANEETHA_CONTEXT = `
-You are Praneetha's personal AI assistant on her portfolio website.
-Answer ONLY questions about Praneetha Vanamala. Be friendly, concise, and professional.
-If asked something unrelated to Praneetha, politely redirect to her portfolio topics.
-
-Here is everything you know about Praneetha:
-
-PERSONAL:
-- Full name: Praneetha Vanamala
-- Based in: Chennai, India
-- Languages spoken: English, Hindi, Tamil, Kannada, Telugu
-
-EDUCATION:
-- B.E. Computer Science Engineering at St. Joseph's College of Engineering, Chennai (2025–2029)
-- 1st Semester CGPA: 9.21
-- Class XII from Narayana PU College (2024–2025) — 79%
-- Class X from Vyasa International School (2022–2023) — 72%
-
-INTERNSHIP:
-- AI Intern at AGH (2025–Present)
-- Working on AI-related tasks and projects
-
-SKILLS:
-- Programming: C, C++, HTML & CSS
-- Mobile & Backend: Flutter, Firebase, Groq Llama API
-- Tools: Git, GitHub, VS Code
-- Currently learning: Python, UiPath/RPA, Agentic AI
-
-PROJECTS:
-1. SJC360 — A Flutter-based smart campus super app for St. Joseph's College of Engineering
-   - 4 portals: Students, Teachers, HODs, Visitors
-   - Features: real-time teacher availability, AI-powered auto-status from timetables,
-     instant meeting broadcasts, Lost & Found, mess menus, IoT crowd detection,
-     emergency contacts, Groq Llama AI chatbot, dark mode, Firebase real-time sync
-   - Tech: Flutter, Firebase, Groq Llama API, IoT (Arduino, ESP8266, PIR sensors)
-
-2. FocusBot — Productivity automation bot (In Progress)
-   - Built with UiPath Studio
-   - Tracks daily tasks, monitors screen time, generates end-of-day reports
-
-CERTIFICATIONS:
-- NPTEL: Python for Data Science
-- Maven Silicon: Embedded C Programming
-
-ACHIEVEMENTS:
-- Thoothukodi TN Hackathon — Finalist (state-level hackathon in Tamil Nadu)
-
-CONTACT:
-- Email: vanamalapraneetha@gmail.com
-- GitHub: github.com/codedbypraneetha
-- LinkedIn: linkedin.com/in/praneetha-vanamala-8b6000370
-
-Answer warmly and in first or third person depending on context.
-Keep answers short (2–4 sentences max) unless the visitor asks for detail.
-`;
+const VERCEL_API = 'https://praneetha-chatbot-yk4n.vercel.app/api/chat';
 
 // ── Build chatbot HTML ────────────────────
 const chatHTML = `
@@ -414,22 +360,16 @@ async function sendMessage() {
   conversationHistory.push({ role: 'user', content: text });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(VERCEL_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: PRANEETHA_CONTEXT,
-        messages: conversationHistory
-      })
+      body: JSON.stringify({ messages: conversationHistory })
     });
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text || "Sorry, I couldn't get a response. Please try again!";
+    const reply = data.reply || "Sorry, I couldn't get a response. Please try again!";
 
     conversationHistory.push({ role: 'assistant', content: reply });
-
     removeTyping();
     addMessage(reply, 'bot');
   } catch (err) {
